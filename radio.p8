@@ -1,9 +1,42 @@
 pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
-function _init
-	print("hello!♥")
+local player = {
+    x = 64,
+    y = 64,
+    speed = 3,
+    size = 15,
+    minX = 1,
+    maxX = 127,
+    minY = 1,
+    maxY = 127
+}
+
+function updatePlayerPos()
+    if btn(0) and player.x > player.minX then player.x -= player.speed end
+    if btn(1) and player.x < player.maxX - player.size then player.x += player.speed end
+    if btn(2) and player.y > player.minY then player.y -= player.speed end
+    if btn(3) and player.y < player.maxY - player.size then player.y += player.speed end
 end
+
+function drawPlayer()
+    rectfill(player.x, player.y, player.x + 15, player.y + 15, 8)
+end
+
+function drawBorders()
+    rect(0, 0, 127, 127, 8)
+end
+
+function _update()
+    updatePlayerPos()
+end
+
+function _draw()
+    cls()
+    drawBorders()
+    drawPlayer()
+end
+
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
