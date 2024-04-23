@@ -1,9 +1,21 @@
 pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
-local player = {
-    x = 64,
-    y = 64,
+
+local playerOne = {
+    x = 56,
+    y = 20,
+    speed = 3,
+    size = 15,
+    minX = 1,
+    maxX = 127,
+    minY = 1,
+    maxY = 127
+}
+
+local playerTwo = {
+    x = 56,
+    y = 100,
     speed = 3,
     size = 15,
     minX = 1,
@@ -13,14 +25,19 @@ local player = {
 }
 
 function updatePlayerPos()
-    if btn(0) and player.x > player.minX then player.x -= player.speed end
-    if btn(1) and player.x < player.maxX - player.size then player.x += player.speed end
-    if btn(2) and player.y > player.minY then player.y -= player.speed end
-    if btn(3) and player.y < player.maxY - player.size then player.y += player.speed end
+    if btn(0) and playerOne.x > playerOne.minX then playerOne.x -= playerOne.speed end
+    if btn(1) and playerOne.x < playerOne.maxX - playerOne.size then playerOne.x += playerOne.speed end
+    if btn(2) and playerOne.y > playerOne.minY then playerOne.y -= playerOne.speed end
+    if btn(3) and playerOne.y < playerOne.maxY - playerOne.size then playerOne.y += playerOne.speed end
+    if btn(0, 1) and playerTwo.x > playerTwo.minX then playerTwo.x -= playerTwo.speed end
+    if btn(1, 1) and playerTwo.x < playerTwo.maxX - playerTwo.size then playerTwo.x += playerTwo.speed end
+    if btn(2, 1) and playerTwo.y > playerTwo.minY then playerTwo.y -= playerTwo.speed end
+    if btn(3, 1) and playerTwo.y < playerTwo.maxY - playerTwo.size then playerTwo.y += playerTwo.speed end
 end
 
 function drawPlayer()
-    rectfill(player.x, player.y, player.x + 15, player.y + 15, 8)
+    rectfill(playerOne.x, playerOne.y, playerOne.x + playerOne.size, playerOne.y + playerOne.size, 8)
+    rectfill(playerTwo.x, playerTwo.y, playerTwo.x + playerTwo.size, playerTwo.y + playerTwo.size, 9)
 end
 
 function drawBorders()
