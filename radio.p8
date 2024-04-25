@@ -58,6 +58,8 @@ local playerTwo = {
     maxY = 125
 }
 
+local lineList = {}
+
 function updatePlayerPos()
     --move player one
     if btn(0) then 
@@ -108,14 +110,42 @@ function drawBorders()
     line(1, line2height, 126, line2height, 14)
 end
 
+function createLine() -- draw a red box that gts added to the lineList
+    if btn(4) then
+        local line = {
+            x = playerOne.x + playerOne.size / 2,
+            y = playerOne.y,
+            size = 3
+        }
+        add(lineList, line)
+        --printh("lineList size: " .. #lineList)
+    end
+end
+
+function updateLinePos()
+    for i = 1, #lineList do
+        lineList[i].y += 4 --wave move speed
+        --printh("linelist index " .. i .. " x: " .. lineList[i].x .. " y: " .. lineList[i].y)
+    end
+end
+
+function drawLines()
+    for i = 1, #lineList do
+        rectfill(lineList[i].x, lineList[i].y, lineList[i].x + lineList[i].size, lineList[i].y + lineList[i].size, 8)
+    end
+end
+
 function _update()
     updatePlayerPos()
+    createLine()
+    updateLinePos()
 end
 
 function _draw()
     cls()
     drawBorders()
     drawPlayer()
+    drawLines()
 end
 
 __gfx__
