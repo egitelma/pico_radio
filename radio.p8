@@ -2,37 +2,99 @@ pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
 
-local playerOne = {
-    x = 56,
-    y = 20,
-    speed = 3,
-    size = 15,
-    minX = 1,
-    maxX = 127,
-    minY = 1,
-    maxY = 127
+-- wave class
+Wave = {
+    type = "",
+    size = 0,
+    color = 0 --default black color, no type, no size
 }
 
-local playerTwo = {
+-- wave constructor
+function Wave:create(type, size)
+    local newWave = {} --hehe, new wave
+    setmetatable(newWave, Wave)
+    newWave.type = type
+    newWave.size = size
+    newWave.color = 2 --maroon-ish
+    -- types: sawtooth, square, sine, triangle
+    if(type == "sawtooth") then
+        newWave.color = 12 --slightly jarring blue
+    elseif(type == "square") then
+        newWave.color = 3 --a pleasant green
+    elseif(type == "sine") then
+        newWave.color = 2 --maroon-ish
+    end
+    return newWave
+end
+
+-- array of wave objects
+local waveArray = {}
+
+-- barriers for movement
+local line1height = 30
+local line2height = 90
+
+-- player one (wave sender) info
+local playerOne = {
     x = 56,
-    y = 100,
+    y = 0,
     speed = 3,
     size = 15,
-    minX = 1,
-    maxX = 127,
-    minY = 1,
-    maxY = 127
+    minX = 2,
+    maxX = 125,
+    minY = 2,
+    maxY = line1height-3
+}
+
+-- player two (wave receiver) info
+local playerTwo = {
+    x = 56,
+    y = 110,
+    speed = 3,
+    size = 15,
+    minX = 2,
+    maxX = 125,
+    minY = line2height+2,
+    maxY = 125
 }
 
 function updatePlayerPos()
-    if btn(0) and playerOne.x > playerOne.minX then playerOne.x -= playerOne.speed end
-    if btn(1) and playerOne.x < playerOne.maxX - playerOne.size then playerOne.x += playerOne.speed end
-    if btn(2) and playerOne.y > playerOne.minY then playerOne.y -= playerOne.speed end
-    if btn(3) and playerOne.y < playerOne.maxY - playerOne.size then playerOne.y += playerOne.speed end
-    if btn(0, 1) and playerTwo.x > playerTwo.minX then playerTwo.x -= playerTwo.speed end
-    if btn(1, 1) and playerTwo.x < playerTwo.maxX - playerTwo.size then playerTwo.x += playerTwo.speed end
-    if btn(2, 1) and playerTwo.y > playerTwo.minY then playerTwo.y -= playerTwo.speed end
-    if btn(3, 1) and playerTwo.y < playerTwo.maxY - playerTwo.size then playerTwo.y += playerTwo.speed end
+    --move player one
+    if btn(0) then 
+        -- fire sawtooth wave
+        newWave = Wave:create("sawtooth", 8)
+        -- table.insert(waveArray, newWave)
+    elseif btn(1) then 
+        -- fire square wave
+        newWave = Wave:create("square", 8)
+        -- newWave.insert(waveArray, newWave)
+    elseif btn(2) then 
+        -- fire sine wave
+        newWave = Wave:create("sine", 8)
+        -- newWave.insert(waveArray, newWave)
+    elseif btn(3) then 
+        -- fire triangle wave
+        newWave = Wave:create("triangle", 8)
+        -- newWave.insert(waveArray, newWave)
+    end
+
+    --move player two
+    if btn(0, 1) and playerTwo.x > playerTwo.minX then 
+        -- move player two (wave-receiver) to the left
+        playerTwo.x -= playerTwo.speed 
+    end
+    if btn(1, 1) and playerTwo.x < playerTwo.maxX - playerTwo.size then 
+        -- move player two to the right
+        playerTwo.x += playerTwo.speed 
+    end
+    if btn(2, 1) and playerTwo.y > playerTwo.minY then 
+        -- move player two upwards
+        playerTwo.y -= playerTwo.speed 
+    end
+    if btn(3, 1) and playerTwo.y < playerTwo.maxY - playerTwo.size then 
+        -- move player two downwards
+        playerTwo.y += playerTwo.speed 
+    end
 end
 
 function drawPlayer()
@@ -41,7 +103,9 @@ function drawPlayer()
 end
 
 function drawBorders()
-    rect(0, 0, 127, 127, 8)
+    rect(0, 0, 127, 127, 1)
+    line(1, line1height, 126, line1height, 14)
+    line(1, line2height, 126, line2height, 14)
 end
 
 function _update()
@@ -55,13 +119,14 @@ function _draw()
 end
 
 __gfx__
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00700700006006000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00077000006006000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00077000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00700700660000660000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000066666600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000000000000000015555551000a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000000000000000150000510a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+007007000060060015055051006006a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00077000006006001505505100600600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00077000000000001500005100555500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00700700660000661555555100500500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000066666601171171100500500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000001171171100555500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __map__
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
