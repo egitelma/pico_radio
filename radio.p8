@@ -3,6 +3,8 @@ version 42
 __lua__
 
 -- wave class
+-- type: sawtooth, sine, square, triangle
+-- size: 
 Wave = {
     type = "",
     size = 0,
@@ -136,6 +138,18 @@ function drawLines()
     end
 end
 
+function drawControls()
+    -- key width: 5, height: 10
+    -- draw up key in maroon
+    rectfill(15, 5, 20, 15, 2)
+    -- down key
+    rectfill(15, 20, 20, 30, 2)
+    -- left key
+    rectfill(5, 15, 15, 20, 2)
+    -- right key
+    rectfill(20, 15, 30, 20, 2)
+end
+
 
 function _update()
     updatePlayerPos()
@@ -145,12 +159,10 @@ end
 
 function _draw()
     cls()
-    drawBorders()
+    drawControls();
     drawPlayer()
-    --test: print waves
-    -- for i=1, count(waveArray), 1 do
-    --     print(waveArray[i].type, 10, i*10)
-    -- end
+    drawLines()
+    drawBorders()
 end
 
 __gfx__
