@@ -142,13 +142,33 @@ end
 function drawControls()
     -- key width: 5, height: 10
     -- draw up key in maroon
-    rectfill(15, 5, 20, 15, 2)
+    if(btn(0)) then
+        rectfill(15, 5, 20, 15, 8)
+    else
+        rectfill(15, 5, 20, 15, 2)
+    end
+    --rectfill(15, 5, 20, 15, 2)
     -- down key
-    rectfill(15, 20, 20, 30, 2)
+    --rectfill(15, 20, 20, 30, 2)
+    if(btn(1)) then
+        rectfill(15, 20, 20, 30, 8)
+    else
+        rectfill(15, 20, 20, 30, 2)
+    end
     -- left key
-    rectfill(5, 15, 15, 20, 2)
+    --rectfill(5, 15, 15, 20, 2)
+    if(btn(2)) then
+        rectfill(5, 15, 15, 20, 8)
+    else
+        rectfill(5, 15, 15, 20, 2)
+    end
     -- right key
-    rectfill(20, 15, 30, 20, 2)
+    --rectfill(20, 15, 30, 20, 2)
+    if(btn(3)) then
+        rectfill(20, 15, 30, 20, 8)
+    else
+        rectfill(20, 15, 30, 20, 2)
+    end
 end
 
 function _update()
