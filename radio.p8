@@ -18,6 +18,7 @@ function Wave:create(type, size)
     newWave.type = type
     newWave.size = size
     newWave.color = 2 --maroon-ish
+    newWave.lineList = {}
     -- types: sawtooth, square, sine, triangle
     if(type == "sawtooth") then
         newWave.color = 12 --slightly jarring blue
@@ -135,7 +136,7 @@ function updatePlayerPos()
                 end
             end
             
-            playerInput.cooldown = 10
+            playerInput.cooldown = 13
 
         -- down key
         elseif btn(3) then 
@@ -248,7 +249,24 @@ function createLine(type) -- draw a red box that gts added to the lineList
         add(newLines, line2)
     elseif (type == "sine") then
         -- draw a sine wave - curving
-        --how the fuck do i do this?
+        --sine wave code based from https://www.reddit.com/r/pico8/comments/f3drmd/creating_a_basic_sine_wave/
+        local samples = 64
+        local amp = 16
+        local freq = 5
+        local center = 64
+        
+        local i_f = 128/freq
+        local dx = 128/samples
+
+        for y=playerOne.y+6, playerOne.y+30, dx do 
+            local newline = {
+                x1 = center+sin(y/i_f)*amp-4,
+                y1 = y-29,
+                x2 = center+sin((y+dx)/i_f)*amp-4,
+                y2 = y+dx-29
+            }
+            add(newLines, newline)
+        end
     elseif (type == "square") then
         -- draw a square wave - blocky
         --made up of four lines, not two! we need five points
@@ -322,7 +340,9 @@ function updateLinePos()
         for j=1, #(waveArray[i].lineList) do
             waveArray[i].lineList[j].y1 += 2
             waveArray[i].lineList[j].y2 += 2 --wave move speed
-            --printh("linelist index " .. i .. " x: " .. lineList[i].x .. " y: " .. lineList[i].y)
+            -- if the line's y1 is past the end of the screen, remove the line from the waveArray.
+            -- if the lineList is empty after removing the line, delete the wave from the waveArray
+            -- if waveArray[i].lineList[j].y1 >= 128
         end
     end
 end
@@ -346,6 +366,15 @@ function drawControls()
     rectfill(5, 15, 15, 20, 2)
     -- right key
     rectfill(20, 15, 30, 20, 2)
+    if btn(2) then
+        rectfill(15, 5, 20, 15, 7)
+    elseif btn(3) then
+        rectfill(15, 20, 20, 30, 7)
+    elseif btn(0) then
+        rectfill(5, 15, 15, 20, 7)
+    elseif btn(1) then
+        rectfill(20, 15, 30, 20, 7)
+    end
 end
 
 
