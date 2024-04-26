@@ -39,7 +39,11 @@ local lineList = {}
 -- barriers for movement
 local line2height = 89
 
+--0 = player one, 1 = player two, this is for who is on the bottom side
 local receivingPlayer = 1
+
+-- timer
+local timeRemaining = 30
 
 -- player one (wave sender) info
 local playerOne = {
@@ -68,41 +72,57 @@ local playerTwo = {
 }
 
 function updatePlayerPos()
+    btn0 = (btn(0) and receivingPlayer == 1) or (btn(0, 1) and receivingPlayer == 0)
+    btn1 = (btn(1) and receivingPlayer == 1) or (btn(1, 1) and receivingPlayer == 0)
+    btn2 = (btn(2) and receivingPlayer == 1) or (btn(2, 1) and receivingPlayer == 0)
+    btn3 = (btn(3) and receivingPlayer == 1) or (btn(3, 1) and receivingPlayer == 0)
+    btn0p = (btn(0) and receivingPlayer == 0) or (btn(0, 1) and receivingPlayer == 1)
+    btn1p = (btn(1) and receivingPlayer == 0) or (btn(1, 1) and receivingPlayer == 1)
+    btn2p = (btn(2) and receivingPlayer == 0) or (btn(2, 1) and receivingPlayer == 1)
+    btn3p = (btn(3) and receivingPlayer == 0) or (btn(3, 1) and receivingPlayer == 1)
+
+    if(receivingPlayer == 1) then
+        p1 = playerOne
+        p2 = playerTwo
+    else
+        p1 = playerTwo
+        p2 = playerOne
+    end
     --move player one
-    if btn(0) then 
+    if btn0 then 
         -- fire sawtooth wave
         newWave = Wave:create("sawtooth", 8)
         add(waveArray, newWave)
-    elseif btn(1) then 
+    elseif btn1 then 
         -- fire square wave
         newWave = Wave:create("square", 8)
         add(waveArray, newWave)
-    elseif btn(2) then 
+    elseif btn2 then 
         -- fire sine wave
         newWave = Wave:create("sine", 8)
         add(waveArray, newWave)
-    elseif btn(3) then 
+    elseif btn3 then 
         -- fire triangle wave
         newWave = Wave:create("triangle", 8)
         add(waveArray, newWave)
     end
 
     --move player two
-    if btn(0, 1) and playerTwo.x > playerTwo.minX then 
+    if btn0p and p2.x > p2.minX then 
         -- move player two (wave-receiver) to the left
-        playerTwo.x -= playerTwo.speed 
+        p2.x -= p2.speed 
     end
-    if btn(1, 1) and playerTwo.x < playerTwo.maxX - playerTwo.size then 
+    if btn1p and p2.x < p2.maxX - p2.size then 
         -- move player two to the right
-        playerTwo.x += playerTwo.speed 
+        p2.x += p2.speed 
     end
-    if btn(2, 1) and playerTwo.y > playerTwo.minY then 
+    if btn2p and p2.y > p2.minY then 
         -- move player two upwards
-        playerTwo.y -= playerTwo.speed 
+        p2.y -= p2.speed 
     end
-    if btn(3, 1) and playerTwo.y < playerTwo.maxY - playerTwo.size then 
+    if btn3p and p2.y < p2.maxY - p2.size then 
         -- move player two downwards
-        playerTwo.y += playerTwo.speed 
+        p2.y += p2.speed 
     end
 end
 
@@ -119,8 +139,8 @@ end
 
 function createLine(type) -- draw a red box that gts added to the lineList
     -- generate a different line based on type
-    
-    if btn(4) then
+    btn4 = (btn(4) and receivingPlayer == 1) or (btn(4, 1) and receivingPlayer == 0)
+    if btn4 then
         if(receivingPlayer == 1) then
             local line = {
                 x = playerOne.x + playerOne.size / 2,
@@ -165,25 +185,29 @@ end
 function drawControls()
     -- key width: 5, height: 10
     -- draw up key in maroon
-    if(btn(2)) then
+    btn0 = btn(0) and receivingPlayer == 1 or btn(0, 1) and receivingPlayer == 0
+    btn1 = btn(1) and receivingPlayer == 1 or btn(1, 1) and receivingPlayer == 0
+    btn2 = btn(2) and receivingPlayer == 1 or btn(2, 1) and receivingPlayer == 0
+    btn3 = btn(3) and receivingPlayer == 1 or btn(3, 1) and receivingPlayer == 0
+    if(btn2) then
         rectfill(15, 5, 20, 15, 8)
     else
         rectfill(15, 5, 20, 15, 2)
     end
     -- down key
-    if(btn(3)) then
+    if(btn3) then
         rectfill(15, 20, 20, 30, 8)
     else
         rectfill(15, 20, 20, 30, 2)
     end
     -- left key
-    if(btn(0)) then
+    if(btn0) then
         rectfill(5, 15, 15, 20, 8)
     else
         rectfill(5, 15, 15, 20, 2)
     end
     -- right key
-    if(btn(1)) then
+    if(btn1) then
         rectfill(20, 15, 30, 20, 8)
     else
         rectfill(20, 15, 30, 20, 2)
@@ -191,14 +215,39 @@ function drawControls()
 end
 
 function drawScore()
-    print("Player 1: " .. playerOne.score, 80, 3, 7)
-    print("Player 2: " .. playerTwo.score, 80, 10, 7)
+    print("Timer: " .. timeRemaining, 80, 3, 7)
+    print("Player 1: " .. playerOne.score, 75, 10, 7)
+    print("Player 2: " .. playerTwo.score, 75, 17, 7)
+end
+
+function updateTimer()
+    oldTimeRemaining = timeRemaining
+    timeRemaining = ceil(30 - t() % 30)
+    if(timeRemaining > oldTimeRemaining) then
+        switchPlayers()
+    end
+end
+
+function switchPlayers()
+    receivingPlayer = 1 - receivingPlayer -- switches players
+    if(receivingPlayer == 1) then
+        playerOne.x = 56
+        playerOne.y = 0
+        playerTwo.x = 56
+        playerTwo.y = 110
+    else
+        playerTwo.x = 56
+        playerTwo.y = 0
+        playerOne.x = 56
+        playerOne.y = 110
+    end
 end
 
 function _update()
     updatePlayerPos()
     createLine()
     updateLinePos()
+    updateTimer()
 end
 
 function _draw()
