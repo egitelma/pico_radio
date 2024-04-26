@@ -39,6 +39,8 @@ local lineList = {}
 -- barriers for movement
 local line2height = 89
 
+local receivingPlayer = 1
+
 -- player one (wave sender) info
 local playerOne = {
     x = 56,
@@ -48,7 +50,8 @@ local playerOne = {
     minX = 2,
     maxX = 125,
     minY = 2,
-    maxY = 0
+    maxY = 0,
+    score = 0
 }
 
 -- player two (wave receiver) info
@@ -60,7 +63,8 @@ local playerTwo = {
     minX = 2,
     maxX = 125,
     minY = line2height+2,
-    maxY = 125
+    maxY = 125,
+    score = 0
 }
 
 function updatePlayerPos()
@@ -117,19 +121,38 @@ function createLine(type) -- draw a red box that gts added to the lineList
     -- generate a different line based on type
     
     if btn(4) then
-        local line = {
-            x = playerOne.x + playerOne.size / 2,
-            y = playerOne.y,
-            size = 3
-        }
-        add(lineList, line)
+        if(receivingPlayer == 1) then
+            local line = {
+                x = playerOne.x + playerOne.size / 2,
+                y = playerOne.y + playerOne.size,
+                size = 3
+            }
+            add(lineList, line)
+        elseif(receivingPlayer == 0) then
+            local line = {
+                x = playerTwo.x + playerTwo.size / 2,
+                y = playerTwo.y - 3,
+                size = 3
+            }
+            add(lineList, line)
+        end
     end
 end
 
 function updateLinePos()
-    for i = 1, #lineList do
-        lineList[i].y += 4 --wave move speed
-        --printh("linelist index " .. i .. " x: " .. lineList[i].x .. " y: " .. lineList[i].y)
+    for item in all(lineList) do
+        item.y += 4
+        if(receivingPlayer == 1 and item.y + item.size >= playerTwo.y and item.y <= playerTwo.y + playerTwo.size and item.x + item.size >= playerTwo.x and item.x <= playerTwo.x + playerTwo.size) then
+            playerTwo.score += 1
+            del(lineList, item)
+        end
+        if(receivingPlayer == 0 and item.y + item.size >= playerOne.y and item.y <= playerOne.y + playerOne.size and item.x + item.size >= playerOne.x and item.x <= playerOne.x + playerOne.size) then
+            playerOne.score += 1
+            del(lineList, item)
+        end
+        if(item.y > 127) then
+            del(lineList, item)
+        end
     end
 end
 
@@ -167,6 +190,11 @@ function drawControls()
     end
 end
 
+function drawScore()
+    print("Player 1: " .. playerOne.score, 80, 3, 7)
+    print("Player 2: " .. playerTwo.score, 80, 10, 7)
+end
+
 function _update()
     updatePlayerPos()
     createLine()
@@ -179,6 +207,7 @@ function _draw()
     drawBorders()
     drawPlayer()
     drawLines()
+    drawScore()
 end
 
 __gfx__
