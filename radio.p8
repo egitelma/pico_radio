@@ -350,48 +350,23 @@ function createLine(type) -- draw a red box that gts added to the lineList
 end
 
 function updateLinePos()
-    --original code
-    -- for item in all(lineList) do
-    --     item.y += 4
-    --     if(receivingPlayer == 1 and item.y + item.size >= playerTwo.y and item.y <= playerTwo.y + playerTwo.size and item.x + item.size >= playerTwo.x and item.x <= playerTwo.x + playerTwo.size) then
-    --         playerTwo.score += 1
-    --         del(lineList, item)
-    --     end
-    --     if(receivingPlayer == 0 and item.y + item.size >= playerOne.y and item.y <= playerOne.y + playerOne.size and item.x + item.size >= playerOne.x and item.x <= playerOne.x + playerOne.size) then
-    --         playerOne.score += 1
-    --         del(lineList, item)
-    --     end
-    --     if(item.y > 127) then
-    --         del(lineList, item)
-    --     end
-    -- end
-    
-    --new code
     for item in all(waveArray) do
         for jtem in all(item.lineList) do
             jtem.y1 += 2
             jtem.y2 += 2
-            -- if(receivingPlayer == 1 and jtem.y2 >= playerTwo.y and jtem.y1 <= playerTwo.y + playerTwo.size and jtem.x2 >= playerTwo.x and jtem.x1 <= playerTwo.x + playerTwo.size) then
-            --     playerTwo.score += 1
-            --     del(item.lineList, jtem)
-            -- end
-            -- if(receivingPlayer == 0 and jtem.y2 >= playerOne.y and jtem.y1 <= playerOne.y + playerOne.size and jtem.x2 >= playerOne.x and jtem.x1 <= playerOne.x + playerOne.size) then
-            --     playerOne.score += 1
-            --     del(item.lineList, jtem)
-            -- end
-            -- if(jtem.y2 > 127) then
-            --     del(item.lineList, jtem)
-            -- end
+            if(receivingPlayer == 1 and jtem.y2 >= playerTwo.y and jtem.y1 <= playerTwo.y + playerTwo.size and jtem.x2 >= playerTwo.x and jtem.x1 <= playerTwo.x + playerTwo.size) then
+                playerTwo.score += 1
+                del(item.lineList, jtem)
+            end
+            if(receivingPlayer == 0 and jtem.y2 >= playerOne.y and jtem.y1 <= playerOne.y + playerOne.size and jtem.x2 >= playerOne.x and jtem.x1 <= playerOne.x + playerOne.size) then
+                playerOne.score += 1
+                del(item.lineList, jtem)
+            end
+            if(jtem.y2 > 127) then
+                del(item.lineList, jtem)
+            end
         end
     end
-
-    -- for i = 1, #waveArray do
-    --     for j=1, #(waveArray[i].lineList) do
-    --         waveArray[i].lineList[j].y1 += 2
-    --         waveArray[i].lineList[j].y2 += 2 --wave move speed
-    --         --printh("linelist index " .. i .. " x: " .. lineList[i].x .. " y: " .. lineList[i].y)
-    --     end
-    -- end
 end
 
 function drawLines()
