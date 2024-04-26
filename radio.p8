@@ -4,7 +4,7 @@ __lua__
 
 -- wave class
 -- type: sawtooth, sine, square, triangle
--- size: 
+-- size: determined however. right now it's defaulted at 8
 Wave = {
     type = "",
     size = 0,
@@ -18,6 +18,7 @@ function Wave:create(type, size)
     newWave.type = type
     newWave.size = size
     newWave.color = 2 --maroon-ish
+    newWave.lineList = {} --for storing individual lines
     -- types: sawtooth, square, sine, triangle
     if(type == "sawtooth") then
         newWave.color = 12 --slightly jarring blue
@@ -36,8 +37,7 @@ local waveArray = {}
 local lineList = {}
 
 -- barriers for movement
-local line1height = 30
-local line2height = 90
+local line2height = 89
 
 -- player one (wave sender) info
 local playerOne = {
@@ -48,7 +48,7 @@ local playerOne = {
     minX = 2,
     maxX = 125,
     minY = 2,
-    maxY = line1height-3
+    maxY = 0
 }
 
 -- player two (wave receiver) info
@@ -113,7 +113,9 @@ function drawBorders()
     line(1, line2height, 126, line2height, 14)
 end
 
-function createLine() -- draw a red box that gts added to the lineList
+function createLine(type) -- draw a red box that gts added to the lineList
+    -- generate a different line based on type
+    
     if btn(4) then
         local line = {
             x = playerOne.x + playerOne.size / 2,
@@ -121,7 +123,6 @@ function createLine() -- draw a red box that gts added to the lineList
             size = 3
         }
         add(lineList, line)
-        --printh("lineList size: " .. #lineList)
     end
 end
 
@@ -150,7 +151,6 @@ function drawControls()
     rectfill(20, 15, 30, 20, 2)
 end
 
-
 function _update()
     updatePlayerPos()
     createLine()
@@ -159,10 +159,10 @@ end
 
 function _draw()
     cls()
-    drawControls();
+    drawControls()
+    drawBorders()
     drawPlayer()
     drawLines()
-    drawBorders()
 end
 
 __gfx__
