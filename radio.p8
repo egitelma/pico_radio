@@ -39,6 +39,15 @@ local lineList = {}
 -- barriers for movement
 local line2height = 89
 
+-- player1 control detection
+local playerInput = {
+    up = false,
+    down = false,
+    left = false,
+    right = false,
+    cooldown = 0
+}
+
 -- player one (wave sender) info
 local playerOne = {
     x = 56,
@@ -64,23 +73,117 @@ local playerTwo = {
 }
 
 function updatePlayerPos()
-    --move player one
-    if btn(0) then 
-        -- fire sawtooth wave
-        newWave = Wave:create("sawtooth", 8)
-        add(waveArray, newWave)
-    elseif btn(1) then 
-        -- fire square wave
-        newWave = Wave:create("square", 8)
-        add(waveArray, newWave)
-    elseif btn(2) then 
-        -- fire sine wave
-        newWave = Wave:create("sine", 8)
-        add(waveArray, newWave)
-    elseif btn(3) then 
-        -- fire triangle wave
-        newWave = Wave:create("triangle", 8)
-        add(waveArray, newWave)
+    if playerInput.cooldown == 0 then
+        --move player one
+        -- left key
+        if btn(0) then 
+            if not playerInput.left then
+                playerInput.left = true
+                -- fire sawtooth wave
+                newWave = Wave:create("sawtooth", 8)
+                add(waveArray, newWave)
+                lines = createLine("sawtooth") --contains two lines for the full wavelength
+                for i=1, #lines do
+                    add(newWave.lineList, lines[i])
+                end
+            else
+                --add to current wave - last wave in the array
+                lines = createLine("sawtooth")
+                for i=1, #lines do
+                    add(waveArray[#waveArray].lineList, lines[i])
+                end
+            end
+            playerInput.cooldown = 10
+
+        -- right key
+        elseif btn(1) then 
+            if not playerInput.right then
+                playerInput.right = true
+                -- fire square wave
+                newWave = Wave:create("square", 8)
+                add(waveArray, newWave)
+                lines = createLine("square")
+                for i=1, #lines do
+                    add(newWave.lineList, lines[i])
+                end
+            else
+                --add to current wave - last wave in the array
+                lines = createLine("square")
+                --square wave is made up of four lines, not two
+                for i=1, #lines do
+                    add(waveArray[#waveArray].lineList, lines[i])
+                end
+            end
+            playerInput.cooldown = 10
+
+        -- up key
+        elseif btn(2) then 
+            if not playerInput.up then
+                playerInput.up = true
+                -- fire sine wave
+                newWave = Wave:create("sine", 8)
+                add(waveArray, newWave)
+                lines = createLine("sine") --contains two lines for the full wavelength
+                for i=1, #lines do
+                    add(newWave.lineList, lines[i])
+                end
+            else
+                --add to current wave - last wave in the array
+                lines = createLine("sine")
+                for i=1, #lines do
+                    add(waveArray[#waveArray].lineList, lines[i])
+                end
+            end
+            
+            playerInput.cooldown = 10
+
+        -- down key
+        elseif btn(3) then 
+            -- fire triangle wave
+            if not playerInput.down then
+                -- start a new wave
+                playerInput.down = true
+                newWave = Wave:create("triangle", 8)
+                add(waveArray, newWave)
+                lines = createLine("triangle") --contains two lines for the full wavelength
+                for i=1, #lines do
+                    add(newWave.lineList, lines[i])
+                end
+            else
+                --add to current wave - last wave in the array
+                lines = createLine("triangle")
+                for i=1, #lines do
+                    add(waveArray[#waveArray].lineList, lines[i])
+                end
+            end
+            playerInput.cooldown = 10
+        end
+
+        --end waves
+        if not btn(0) then
+            if playerInput.left then
+                playerInput.cooldown = 10
+            end
+            playerInput.left = false
+        end
+        if not btn(1) then
+            if playerInput.right then
+                playerInput.cooldown = 10
+            end
+            playerInput.right = false
+        end
+        if not btn(2) then
+            if playerInput.up then
+                playerInput.cooldown = 10
+            end
+            playerInput.up = false
+        end
+        if not btn(3) then
+            if playerInput.down then
+                playerInput.cooldown = 10
+            end
+            playerInput.down = false
+        end
     end
 
     --move player two
@@ -100,6 +203,11 @@ function updatePlayerPos()
         -- move player two downwards
         playerTwo.y += playerTwo.speed 
     end
+
+    --reduce cooldown
+    if playerInput.cooldown > 0 then
+        playerInput.cooldown -= 1
+    end
 end
 
 function drawPlayer()
@@ -114,28 +222,117 @@ function drawBorders()
 end
 
 function createLine(type) -- draw a red box that gts added to the lineList
+    newLines = {}
     -- generate a different line based on type
-    
-    if btn(4) then
-        local line = {
-            x = playerOne.x + playerOne.size / 2,
-            y = playerOne.y,
-            size = 3
+    if (type == "sawtooth") then 
+        -- draw a sawtooth wave - jagged
+        local x1 = playerOne.x - 12
+        local x2 = playerOne.x + 20
+        local y1 = playerOne.y - 20
+        local y2 = playerOne.y - 20
+        local y3 = playerOne.y
+        -- draw two lines. crossing the screen, and back
+        local line1 = {
+            x1 = x1,
+            x2 = x2,
+            y1 = y1,
+            y2 = y2
         }
-        add(lineList, line)
+        local line2 = {
+            x1 = x2,
+            x2 = x1,
+            y1 = y2,
+            y2 = y3
+        }
+        add(newLines, line1)
+        add(newLines, line2)
+    elseif (type == "sine") then
+        -- draw a sine wave - curving
+        --how the fuck do i do this?
+    elseif (type == "square") then
+        -- draw a square wave - blocky
+        --made up of four lines, not two! we need five points
+        -- point one: x1, y1
+        -- point two: x1, y2
+        -- point three: x2, y2
+        -- point four: x2, y3
+        -- point five: x1, y3
+        local x1 = playerOne.x - 12
+        local x2 = playerOne.x + 20
+        local y1 = playerOne.y - 20
+        local y2 = playerOne.y - 10
+        local y3 = playerOne.y
+        --draw four lines: down, right, down, left
+        local line1 = {
+            x1 = x1,
+            x2 = x1,
+            y1 = y1,
+            y2 = y2
+        }
+        local line2 = {
+            x1 = x1,
+            x2 = x2,
+            y1 = y2,
+            y2 = y2
+        }
+        local line3 = {
+            x1 = x2,
+            x2 = x2,
+            y1 = y2,
+            y2 = y3
+        }
+        local line4 = {
+            x1 = x2,
+            x2 = x1,
+            y1 = y3,
+            y2 = y3
+        }
+        add(newLines, line1)
+        add(newLines, line2)
+        add(newLines, line3)
+        add(newLines, line4)
+    elseif (type == "triangle") then
+        -- draw a triangle wave - simple
+        local x1 = playerOne.x - 12
+        local x2 = playerOne.x + 20
+        local y1 = playerOne.y - 20
+        local y2 = playerOne.y - 10
+        local y3 = playerOne.y
+        -- draw two lines. crossing the screen, and back
+        local line1 = {
+            x1 = x1,
+            x2 = x2,
+            y1 = y1,
+            y2 = y2
+        }
+        local line2 = {
+            x1 = x2,
+            x2 = x1,
+            y1 = y2,
+            y2 = y3
+        }
+        add(newLines, line1)
+        add(newLines, line2)
     end
+    return newLines
 end
 
 function updateLinePos()
-    for i = 1, #lineList do
-        lineList[i].y += 4 --wave move speed
-        --printh("linelist index " .. i .. " x: " .. lineList[i].x .. " y: " .. lineList[i].y)
+    for i = 1, #waveArray do
+        for j=1, #(waveArray[i].lineList) do
+            waveArray[i].lineList[j].y1 += 2
+            waveArray[i].lineList[j].y2 += 2 --wave move speed
+            --printh("linelist index " .. i .. " x: " .. lineList[i].x .. " y: " .. lineList[i].y)
+        end
     end
 end
 
 function drawLines()
-    for i = 1, #lineList do
-        rectfill(lineList[i].x, lineList[i].y, lineList[i].x + lineList[i].size, lineList[i].y + lineList[i].size, 8)
+    for i = 1, #waveArray do
+        for j=1, #(waveArray[i].lineList) do
+            line(waveArray[i].lineList[j].x1, waveArray[i].lineList[j].y1, waveArray[i].lineList[j].x2, waveArray[i].lineList[j].y2)
+            -- rectfill(waveArray[i].lineList[j].x, waveArray[i].lineList[j].y, waveArray[i].lineList[j].x + waveArray[i].lineList[j].size, waveArray[i].lineList[j].y + waveArray[i].lineList[j].size, 8)
+        end
     end
 end
 
@@ -153,7 +350,7 @@ end
 
 function _update()
     updatePlayerPos()
-    createLine()
+    -- createLine()
     updateLinePos()
 end
 
