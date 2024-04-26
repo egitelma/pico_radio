@@ -4,7 +4,7 @@ __lua__
 
 -- wave class
 -- type: sawtooth, sine, square, triangle
--- size: 
+-- size: determined however. right now it's defaulted at 8
 Wave = {
     type = "",
     size = 0,
@@ -18,6 +18,7 @@ function Wave:create(type, size)
     newWave.type = type
     newWave.size = size
     newWave.color = 2 --maroon-ish
+    newWave.lineList = {} --for storing individual lines
     -- types: sawtooth, square, sine, triangle
     if(type == "sawtooth") then
         newWave.color = 12 --slightly jarring blue
@@ -39,6 +40,10 @@ local lineList = {}
 local line1height = 30
 local line2height = 90
 
+-- management stuff
+local receivingPlayer = 1
+local timeRemaining = 30
+
 -- player1 control detection
 local playerInput = {
     up = false,
@@ -57,7 +62,8 @@ local playerOne = {
     minX = 2,
     maxX = 125,
     minY = 2,
-    maxY = line1height-3
+    maxY = line1height-3,
+    score = 0
 }
 
 -- player two (wave receiver) info
@@ -69,14 +75,34 @@ local playerTwo = {
     minX = 2,
     maxX = 125,
     minY = line2height+2,
-    maxY = 125
+    maxY = 125,
+    score = 0
 }
 
 function updatePlayerPos()
+    -- assigning buttons based on current player
+    btn0 = (btn(0) and receivingPlayer == 1) or (btn(0, 1) and receivingPlayer == 0)
+    btn1 = (btn(1) and receivingPlayer == 1) or (btn(1, 1) and receivingPlayer == 0)
+    btn2 = (btn(2) and receivingPlayer == 1) or (btn(2, 1) and receivingPlayer == 0)
+    btn3 = (btn(3) and receivingPlayer == 1) or (btn(3, 1) and receivingPlayer == 0)
+    btn0p = (btn(0) and receivingPlayer == 0) or (btn(0, 1) and receivingPlayer == 1)
+    btn1p = (btn(1) and receivingPlayer == 0) or (btn(1, 1) and receivingPlayer == 1)
+    btn2p = (btn(2) and receivingPlayer == 0) or (btn(2, 1) and receivingPlayer == 1)
+    btn3p = (btn(3) and receivingPlayer == 0) or (btn(3, 1) and receivingPlayer == 1)
+
+    if(receivingPlayer == 1) then
+        p1 = playerOne
+        p2 = playerTwo
+    else
+        p1 = playerTwo
+        p2 = playerOne
+    end
+
+
     if playerInput.cooldown == 0 then
         --move player one
         -- left key
-        if btn(0) then 
+        if btn0 then 
             if not playerInput.left then
                 playerInput.left = true
                 -- fire sawtooth wave
@@ -96,7 +122,7 @@ function updatePlayerPos()
             playerInput.cooldown = 10
 
         -- right key
-        elseif btn(1) then 
+        elseif btn1 then 
             if not playerInput.right then
                 playerInput.right = true
                 -- fire square wave
@@ -117,7 +143,7 @@ function updatePlayerPos()
             playerInput.cooldown = 10
 
         -- up key
-        elseif btn(2) then 
+        elseif btn2 then 
             if not playerInput.up then
                 playerInput.up = true
                 -- fire sine wave
@@ -138,7 +164,7 @@ function updatePlayerPos()
             playerInput.cooldown = 10
 
         -- down key
-        elseif btn(3) then 
+        elseif btn3 then 
             -- fire triangle wave
             if not playerInput.down then
                 -- start a new wave
@@ -160,25 +186,25 @@ function updatePlayerPos()
         end
 
         --end waves
-        if not btn(0) then
+        if not btn0 then
             if playerInput.left then
                 playerInput.cooldown = 10
             end
             playerInput.left = false
         end
-        if not btn(1) then
+        if not btn1 then
             if playerInput.right then
                 playerInput.cooldown = 10
             end
             playerInput.right = false
         end
-        if not btn(2) then
+        if not btn2 then
             if playerInput.up then
                 playerInput.cooldown = 10
             end
             playerInput.up = false
         end
-        if not btn(3) then
+        if not btn3 then
             if playerInput.down then
                 playerInput.cooldown = 10
             end
@@ -187,21 +213,21 @@ function updatePlayerPos()
     end
 
     --move player two
-    if btn(0, 1) and playerTwo.x > playerTwo.minX then 
+    if btn0p and p2.x > p2.minX then 
         -- move player two (wave-receiver) to the left
-        playerTwo.x -= playerTwo.speed 
+        p2.x -= p2.speed 
     end
-    if btn(1, 1) and playerTwo.x < playerTwo.maxX - playerTwo.size then 
+    if btn1p and p2.x < p2.maxX - p2.size then 
         -- move player two to the right
-        playerTwo.x += playerTwo.speed 
+        p2.x += p2.speed 
     end
-    if btn(2, 1) and playerTwo.y > playerTwo.minY then 
+    if btn2p and p2.y > p2.minY then 
         -- move player two upwards
-        playerTwo.y -= playerTwo.speed 
+        p2.y -= p2.speed 
     end
-    if btn(3, 1) and playerTwo.y < playerTwo.maxY - playerTwo.size then 
+    if btn3p and p2.y < p2.maxY - p2.size then 
         -- move player two downwards
-        playerTwo.y += playerTwo.speed 
+        p2.y += p2.speed 
     end
 
     --reduce cooldown
@@ -222,15 +248,21 @@ function drawBorders()
 end
 
 function createLine(type) -- draw a red box that gts added to the lineList
+    if(receivingPlayer == 1) then
+        p1 = playerOne
+    else
+        p1 = playerTwo
+    end
+
     newLines = {}
     -- generate a different line based on type
     if (type == "sawtooth") then 
         -- draw a sawtooth wave - jagged
-        local x1 = playerOne.x - 12
-        local x2 = playerOne.x + 20
-        local y1 = playerOne.y - 20
-        local y2 = playerOne.y - 20
-        local y3 = playerOne.y
+        local x1 = p1.x - 12
+        local x2 = p1.x + 20
+        local y1 = p1.y - 20
+        local y2 = p1.y - 20
+        local y3 = p1.y
         -- draw two lines. crossing the screen, and back
         local line1 = {
             x1 = x1,
@@ -257,11 +289,11 @@ function createLine(type) -- draw a red box that gts added to the lineList
         -- point three: x2, y2
         -- point four: x2, y3
         -- point five: x1, y3
-        local x1 = playerOne.x - 12
-        local x2 = playerOne.x + 20
-        local y1 = playerOne.y - 20
-        local y2 = playerOne.y - 10
-        local y3 = playerOne.y
+        local x1 = p1.x - 12
+        local x2 = p1.x + 20
+        local y1 = p1.y - 20
+        local y2 = p1.y - 10
+        local y3 = p1.y
         --draw four lines: down, right, down, left
         local line1 = {
             x1 = x1,
@@ -293,11 +325,11 @@ function createLine(type) -- draw a red box that gts added to the lineList
         add(newLines, line4)
     elseif (type == "triangle") then
         -- draw a triangle wave - simple
-        local x1 = playerOne.x - 12
-        local x2 = playerOne.x + 20
-        local y1 = playerOne.y - 20
-        local y2 = playerOne.y - 10
-        local y3 = playerOne.y
+        local x1 = p1.x - 12
+        local x2 = p1.x + 20
+        local y1 = p1.y - 20
+        local y2 = p1.y - 10
+        local y3 = p1.y
         -- draw two lines. crossing the screen, and back
         local line1 = {
             x1 = x1,
@@ -318,13 +350,48 @@ function createLine(type) -- draw a red box that gts added to the lineList
 end
 
 function updateLinePos()
-    for i = 1, #waveArray do
-        for j=1, #(waveArray[i].lineList) do
-            waveArray[i].lineList[j].y1 += 2
-            waveArray[i].lineList[j].y2 += 2 --wave move speed
-            --printh("linelist index " .. i .. " x: " .. lineList[i].x .. " y: " .. lineList[i].y)
+    --original code
+    -- for item in all(lineList) do
+    --     item.y += 4
+    --     if(receivingPlayer == 1 and item.y + item.size >= playerTwo.y and item.y <= playerTwo.y + playerTwo.size and item.x + item.size >= playerTwo.x and item.x <= playerTwo.x + playerTwo.size) then
+    --         playerTwo.score += 1
+    --         del(lineList, item)
+    --     end
+    --     if(receivingPlayer == 0 and item.y + item.size >= playerOne.y and item.y <= playerOne.y + playerOne.size and item.x + item.size >= playerOne.x and item.x <= playerOne.x + playerOne.size) then
+    --         playerOne.score += 1
+    --         del(lineList, item)
+    --     end
+    --     if(item.y > 127) then
+    --         del(lineList, item)
+    --     end
+    -- end
+    
+    --new code
+    for item in all(waveArray) do
+        for jtem in all(item.lineList) do
+            jtem.y1 += 2
+            jtem.y2 += 2
+            -- if(receivingPlayer == 1 and jtem.y2 >= playerTwo.y and jtem.y1 <= playerTwo.y + playerTwo.size and jtem.x2 >= playerTwo.x and jtem.x1 <= playerTwo.x + playerTwo.size) then
+            --     playerTwo.score += 1
+            --     del(item.lineList, jtem)
+            -- end
+            -- if(receivingPlayer == 0 and jtem.y2 >= playerOne.y and jtem.y1 <= playerOne.y + playerOne.size and jtem.x2 >= playerOne.x and jtem.x1 <= playerOne.x + playerOne.size) then
+            --     playerOne.score += 1
+            --     del(item.lineList, jtem)
+            -- end
+            -- if(jtem.y2 > 127) then
+            --     del(item.lineList, jtem)
+            -- end
         end
     end
+
+    -- for i = 1, #waveArray do
+    --     for j=1, #(waveArray[i].lineList) do
+    --         waveArray[i].lineList[j].y1 += 2
+    --         waveArray[i].lineList[j].y2 += 2 --wave move speed
+    --         --printh("linelist index " .. i .. " x: " .. lineList[i].x .. " y: " .. lineList[i].y)
+    --     end
+    -- end
 end
 
 function drawLines()
@@ -339,20 +406,77 @@ end
 function drawControls()
     -- key width: 5, height: 10
     -- draw up key in maroon
-    rectfill(15, 5, 20, 15, 2)
+    btn0 = btn(0) and receivingPlayer == 1 or btn(0, 1) and receivingPlayer == 0
+    btn1 = btn(1) and receivingPlayer == 1 or btn(1, 1) and receivingPlayer == 0
+    btn2 = btn(2) and receivingPlayer == 1 or btn(2, 1) and receivingPlayer == 0
+    btn3 = btn(3) and receivingPlayer == 1 or btn(3, 1) and receivingPlayer == 0
+    if(btn2) then
+        rectfill(15, 5, 20, 15, 8)
+    else
+        rectfill(15, 5, 20, 15, 2)
+    end
     -- down key
-    rectfill(15, 20, 20, 30, 2)
+    if(btn3) then
+        rectfill(15, 20, 20, 30, 8)
+    else
+        rectfill(15, 20, 20, 30, 2)
+    end
     -- left key
-    rectfill(5, 15, 15, 20, 2)
+    if(btn0) then
+        rectfill(5, 15, 15, 20, 8)
+    else
+        rectfill(5, 15, 15, 20, 2)
+    end
     -- right key
-    rectfill(20, 15, 30, 20, 2)
+    if(btn1) then
+        rectfill(20, 15, 30, 20, 8)
+    else
+        rectfill(20, 15, 30, 20, 2)
+    end
 end
 
+function drawScore()
+    print("Timer: " .. timeRemaining, 80, 3, 7)
+    print("Player 1: " .. playerOne.score, 75, 10, 7)
+    print("Player 2: " .. playerTwo.score, 75, 17, 7)
+end
+
+function updateTimer()
+    oldTimeRemaining = timeRemaining
+    timeRemaining = ceil(30 - t() % 30)
+    if(timeRemaining > oldTimeRemaining) then
+        switchPlayers()
+    end
+end
+
+function switchPlayers()
+    receivingPlayer = 1 - receivingPlayer -- switches players
+    if(receivingPlayer == 1) then
+        playerOne.x = 56
+        playerOne.y = 0
+        playerOne.minY = 2
+        playerOne.maxY = line1height-3
+        playerTwo.x = 56
+        playerTwo.y = 110
+        playerTwo.minY = line2height+2
+        playerTwo.maxY = 125
+    else
+        playerTwo.x = 56
+        playerTwo.y = 0
+        playerTwo.minY = 2
+        playerTwo.maxY = line1height-3
+        playerOne.x = 56
+        playerOne.y = 110
+        playerOne.minY = line2height+2
+        playerOne.maxY = 125
+    end
+end
 
 function _update()
     updatePlayerPos()
     -- createLine()
     updateLinePos()
+    updateTimer()
 end
 
 function _draw()
@@ -361,6 +485,7 @@ function _draw()
     drawPlayer()
     drawLines()
     drawBorders()
+    drawScore()
 end
 
 __gfx__
