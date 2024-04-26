@@ -379,7 +379,7 @@ function updateLinePos()
                 playerOne.score += 1
                 del(item.lineList, jtem)
             end
-            if(jtem.y2 > 127) then
+            if(jtem.y2 > 133) then
                 del(item.lineList, jtem)
             end
         end
@@ -420,15 +420,10 @@ function drawControls()
         rectfill(5, 15, 15, 20, 2)
     end
     -- right key
-    rectfill(20, 15, 30, 20, 2)
-    if btn(2) then
-        rectfill(15, 5, 20, 15, 7)
-    elseif btn(3) then
-        rectfill(15, 20, 20, 30, 7)
-    elseif btn(0) then
-        rectfill(5, 15, 15, 20, 7)
-    elseif btn(1) then
-        rectfill(20, 15, 30, 20, 7)
+    if(btn1) then
+        rectfill(20, 15, 30, 20, 8)
+    else
+        rectfill(20, 15, 30, 20, 2)
     end
 end
 
