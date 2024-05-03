@@ -12,10 +12,8 @@ cloud3x = 15
 
 scene = "title"
 
-
 -- wave class
 -- type: sawtooth, sine, square, triangle
--- size: determined however. right now it's defaulted at 8
 Wave = {
     type = "",
     size = 0,
@@ -113,6 +111,7 @@ local line2height = 90
 -- management stuff
 local receivingPlayer = 1
 local timeRemaining = 30
+local playersSwitched = false
 
 -- player1 control detection
 local playerInput = {
@@ -555,17 +554,45 @@ function drawControls()
 
 end
 
+--draw score during play
 function drawScore()
     print("Timer: " .. timeRemaining, 80, 3, 7)
     print("Player 1: " .. playerOne.score, 75, 10, 7)
     print("Player 2: " .. playerTwo.score, 75, 17, 7)
 end
 
+--end screen
+function drawPoints()
+    --draw out text
+    print("\^t\^wEND", 50, 50, 10)
+    print("PLAYER 1 SCORE: " .. playerOne.score, 24, 64, 7)
+    print("PLAYER 2 SCORE: " .. playerTwo.score, 24, 70, 7)
+    if playerOne.score > playerTwo.score then
+        print("\^t\^wPLAYER ONE WINS!", 2, 80, 14)
+    elseif playerTwo.score > playerOne.score then
+        print("\^t\^wPLAYER TWO WINS!", 2, 80, 14)
+    else 
+        print("\^t\^wTIE", 50, 80, 14)
+    end
+    print("press x to return to title", 12, 96, 7)
+
+    --check player input
+    if btn(5) then
+        resetVariables()
+        cls()
+    end
+end
+
 function updateTimer()
     oldTimeRemaining = timeRemaining
     timeRemaining = ceil(30 - t() % 30)
     if(timeRemaining > oldTimeRemaining) then
-        switchPlayers()
+        if playersSwitched == false then
+            playersSwitched = true
+            switchPlayers()
+        else
+            scene = "end"
+        end
     end
 end
 
@@ -627,25 +654,54 @@ end
 palt(1, true)
 
 function _draw()
-
-
     if (scene == "title") then
         draw_title()
-    elseif  (scene == "play" )then 
 
+    elseif  (scene == "play") then 
         cls()
         drawControls();
         drawPlayer()
         drawLines()
         drawBorders()
         drawScore()
-    end
 
-    
-    
+    elseif(scene == "end") then
+        cls()
+        drawPoints()
+    end
 end
 
-
+--reset all relevant variables for game restart
+function resetVariables()
+    --player variables
+    playerOne = {
+        x = 56,
+        y = 0,
+        speed = 3,
+        size = 15,
+        minX = 2,
+        maxX = 125,
+        minY = 2,
+        maxY = line1height-3,
+        score = 0
+    }
+    playerTwo = {
+        x = 56,
+        y = 110,
+        speed = 3,
+        size = 15,
+        minX = 2,
+        maxX = 125,
+        minY = line2height+2,
+        maxY = 125,
+        score = 0
+    }
+    playersSwitched = false
+    receivingPlayer = 1
+    timeRemaining = 30
+    waveArray = {}
+    scene = "title"
+end
 
 -- title screen stuff
 
@@ -662,7 +718,7 @@ function draw_title()
 		title_background()
 		title_foreground()
 		--title_text()
-		cloudtime =0
+		cloudtime = 0
 	end
 
     rectfill(62,78, 126, 84, 3)
