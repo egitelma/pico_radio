@@ -28,7 +28,7 @@ function Wave:create(type, size)
     setmetatable(newWave, Wave)
     newWave.type = type
     newWave.size = size
-    newWave.color = 2 --maroon-ish
+    newWave.color = 2 --maroon-ish, as a baseline
     newWave.lineList = {} --for storing individual lines
     -- types: sawtooth, square, sine, triangle
     if(type == "sawtooth") then
@@ -37,6 +37,8 @@ function Wave:create(type, size)
         newWave.color = 3 --a pleasant green
     elseif(type == "sine") then
         newWave.color = 2 --maroon-ish
+    elseif(type == "triangle") then
+        newWave.color = 14 --nice pink
     end
     return newWave
 end
@@ -342,7 +344,7 @@ function drawBorders()
     line(1, line2height, 126, line2height, 14)
 end
 
-function createLine(type) -- draw a red box that gts added to the lineList
+function createLine(type) -- draw waves coming from the player
     if(receivingPlayer == 1) then
         p1 = playerOne
     else
@@ -489,11 +491,10 @@ function updateLinePos()
     end
 end
 
-function drawLines()
+function drawLines() --draws the actual waves themselves
     for i = 1, #waveArray do
         for j=1, #(waveArray[i].lineList) do
-            line(waveArray[i].lineList[j].x1, waveArray[i].lineList[j].y1, waveArray[i].lineList[j].x2, waveArray[i].lineList[j].y2)
-            -- rectfill(waveArray[i].lineList[j].x, waveArray[i].lineList[j].y, waveArray[i].lineList[j].x + waveArray[i].lineList[j].size, waveArray[i].lineList[j].y + waveArray[i].lineList[j].size, 8)
+            line(waveArray[i].lineList[j].x1, waveArray[i].lineList[j].y1, waveArray[i].lineList[j].x2, waveArray[i].lineList[j].y2, waveArray[i].color)
         end
     end
 end
