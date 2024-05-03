@@ -734,6 +734,7 @@ function draw_title()
     if btn(4) then 
         -- Toggle scenes when button pressed
         scene = "play"
+        start = t()
     end
 
 	cloudtime+=speed
