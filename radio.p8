@@ -11,6 +11,7 @@ cloud2x = 30
 cloud3x = 15
 
 scene = "title"
+start = 0
 
 -- wave class
 -- type: sawtooth, sine, square, triangle
@@ -604,7 +605,7 @@ end
 
 function updateTimer()
     oldTimeRemaining = timeRemaining
-    timeRemaining = ceil(30 - t() % 30)
+    timeRemaining = ceil(30 - (t() - start) % 30)
     if(timeRemaining > oldTimeRemaining) then
         if playersSwitched == false then
             playersSwitched = true
@@ -656,6 +657,9 @@ end
 
 function _update()
     if ( scene == "play") then
+        if (start == 0 ) then 
+            start = t()
+        end
         updatePlayerPos()
         updateLinePos()
         updateTimer()
