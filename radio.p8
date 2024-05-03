@@ -29,11 +29,13 @@ function Wave:create(type, size)
     end
     return newWave
 end
+
 local currentSong = {0, 4, 9, 14}
 local base = {0, 1, 2, 3}
 local harm = {4, 5, 6, 7}
 local melody = {8, 9,10, 11}
 local drum = {12,13, 14, 15}
+
 function addBase()
     local randIndex = flr(rnd(#base)) + 1  -- Get a random index
     local valueToRemove = base[randIndex]  -- Get the value at that random index
@@ -47,8 +49,8 @@ function addBase()
 
     -- Assuming you want to manage the size of currentSong to a max of 4 items
     del(currentSong, currentSong[1])  -- Remove the oldest added item from currentSong
-
 end
+
 function addHarm()
     local randIndex = flr(rnd(#harm)) + 1
     local valueToRemove = harm[randIndex]
@@ -88,13 +90,8 @@ function addDrum()
     del(currentSong, currentSong[1])
 end
 
-
-
 -- array of wave objects
 local waveArray = {}
-
--- list for storing lines
-local lineList = {}
 
 -- barriers for movement
 local line1height = 30
@@ -322,8 +319,10 @@ function updatePlayerPos()
 end
 
 function drawPlayer()
+
     rectfill(playerOne.x, playerOne.y, playerOne.x + playerOne.size, playerOne.y + playerOne.size, 8)
-    rectfill(playerTwo.x, playerTwo.y, playerTwo.x + playerTwo.size, playerTwo.y + playerTwo.size, 9)
+    spr(1, playerTwo.x, playerTwo.y)
+    -- rectfill(playerTwo.x, playerTwo.y, playerTwo.x + playerTwo.size, playerTwo.y + playerTwo.size, 9)
 end
 
 function drawBorders()
@@ -374,7 +373,15 @@ function createLine(type) -- draw a red box that gts added to the lineList
         local i_f = 128/freq
         local dx = 128/samples
 
-        for y=playerOne.y+6, playerOne.y+30, dx do 
+        local yBase;
+
+        if receivingPlayer == 0 then
+            yBase = playerTwo.y
+        else
+            yBase = playerOne.y
+        end
+
+        for y=yBase+6, yBase+30, dx do 
             local newline = {
                 x1 = center+sin(y/i_f)*amp-4,
                 y1 = y-29,
@@ -577,6 +584,9 @@ function _update()
     end
     playSong();
 end
+
+--set transparent color
+palt(1, true)
 
 function _draw()
     cls()
