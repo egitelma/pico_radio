@@ -178,7 +178,7 @@ function updatePlayerPos()
 
     if playerInput.cooldown == 0 then
         --move player one
-        -- left key
+        -- left key: sawtooth
         if btn0 then
             addDrum()
             -- local number1, number2 = get_two_different_random_numbers()
@@ -202,7 +202,7 @@ function updatePlayerPos()
             end
             playerInput.cooldown = 10
 
-        -- right key
+        -- right key: square
         elseif btn1 then
             addBase()
             -- local number1, number2 = get_two_different_random_numbers()
@@ -227,7 +227,7 @@ function updatePlayerPos()
             end
             playerInput.cooldown = 10
 
-        -- up key
+        -- up key: sine
         elseif btn2 then
             addHarm()
             -- local number1, number2 = get_two_different_random_numbers()
@@ -252,7 +252,7 @@ function updatePlayerPos()
             
             playerInput.cooldown = 13
 
-        -- down key
+        -- down key: triangle
         elseif btn3 then 
             addMelody()
             -- local number1, number2 = get_two_different_random_numbers()
@@ -505,6 +505,7 @@ function drawControls()
     btn1 = btn(1) and receivingPlayer == 1 or btn(1, 1) and receivingPlayer == 0
     btn2 = btn(2) and receivingPlayer == 1 or btn(2, 1) and receivingPlayer == 0
     btn3 = btn(3) and receivingPlayer == 1 or btn(3, 1) and receivingPlayer == 0
+    -- up key
     if(btn2) then
         rectfill(15, 5, 20, 15, 8)
     else
@@ -528,6 +529,29 @@ function drawControls()
     else
         rectfill(20, 15, 30, 20, 2)
     end
+
+    -- draw symbols in white on top
+    -- up key: sine
+    line(16, 7, 19, 9, 7)
+    line(19, 9, 16, 11, 7)
+    line(16, 11, 19, 13, 7)
+    -- line(16, 8, 19, )
+    -- down key: triangle (shockingly the most annoying)
+    line(16, 21, 18, 23, 7)
+    line(18, 23, 16, 25, 7)
+    line(16, 25, 18, 27, 7)
+    -- left key: sawtooth
+    line(7, 19, 10, 16, 7)
+    line(10, 16, 10, 19, 7)
+    line(10, 19, 13, 16, 7)
+    line(13, 16, 13, 19, 7)
+    -- right key: square
+    line(23, 19, 23, 16, 7)
+    line(23, 16, 25, 16, 7)
+    line(25, 16, 25, 19, 7)
+    line(25, 19, 27, 19, 7)
+    line(27, 19, 27, 16, 7)
+
 end
 
 function drawScore()
