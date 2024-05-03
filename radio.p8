@@ -422,28 +422,47 @@ function createLine(type) -- draw waves coming from the player
             y1 = y1,
             y2 = y2
         }
-        local line2 = {
-            x1 = x1,
-            x2 = x2,
-            y1 = y2,
-            y2 = y2
-        }
+        local i
+        for i=0, 15, 1 do
+            local newLine = {
+                x1 = x1 + i*2,
+                x2 = x1 + 2 + i*2,
+                y1 = y2,
+                y2 = y2
+            }
+            add(newLines, newLine)
+        end
+        -- local line2 = {
+        --     x1 = x1,
+        --     x2 = x2,
+        --     y1 = y2,
+        --     y2 = y2
+        -- }
         local line3 = {
             x1 = x2,
             x2 = x2,
             y1 = y2,
             y2 = y3
         }
-        local line4 = {
-            x1 = x2,
-            x2 = x1,
-            y1 = y3,
-            y2 = y3
-        }
+        -- local line4 = {
+        --     x1 = x2,
+        --     x2 = x1,
+        --     y1 = y3,
+        --     y2 = y3
+        -- }
+        for i=0, 15, 1 do
+            local newLine = {
+                x1 = x1 + i*2,
+                x2 = x1 + 2 + i*2,
+                y1 = y3,
+                y2 = y3
+            }
+            add(newLines, newLine)
+        end
         add(newLines, line1)
-        add(newLines, line2)
+        -- add(newLines, line2)
         add(newLines, line3)
-        add(newLines, line4)
+        -- add(newLines, line4)
     elseif (type == "triangle") then
         -- draw a triangle wave - simple
         local x1 = p1.x - 12
