@@ -361,19 +361,38 @@ function createLine(type) -- draw waves coming from the player
         local y2 = p1.y - 20
         local y3 = p1.y
         -- draw two lines. crossing the screen, and back
-        local line1 = {
-            x1 = x1,
-            x2 = x2,
-            y1 = y1,
-            y2 = y2
-        }
+        -- local line1 = {
+        --     x1 = x1,
+        --     x2 = x2,
+        --     y1 = y1,
+        --     y2 = y2
+        -- }
+        local i
+        for i=0, 15, 1 do
+            local newLine = {
+                x1 = x1 + i*2,
+                x2 = x1 + 2 + i*2,
+                y1 = y2,
+                y2 = y2
+            }
+            add(newLines, newLine)
+        end
+        -- for i=0, 10, 1 do
+        --     local newLine = {
+        --         x1 = x1 + i*2,
+        --         x2 = x1 + 2 + i*2,
+        --         y1 = y1 + i*2,
+        --         y2 = y1 + 2 + i*2
+        --     }
+        --     add(newLines, newLine)
+        -- end
         local line2 = {
             x1 = x2,
             x2 = x1,
             y1 = y2,
             y2 = y3
         }
-        add(newLines, line1)
+        -- add(newLines, line1)
         add(newLines, line2)
     elseif (type == "sine") then
         -- draw a sine wave - curving
